@@ -293,7 +293,9 @@ class XHRUploader extends Component {
       <CSSTransition
         classNames={transitionName}
         timeout={{enter: 0, exit: 0}}
-      />
+      >
+        <span />
+      </CSSTransition>
     );
   }
 
