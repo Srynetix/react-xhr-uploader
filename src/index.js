@@ -250,9 +250,8 @@ class XHRUploader extends Component {
       return (
         <TransitionGroup
           component="div"
-          transitionName={transitionName}
-          transitionEnterTimeout={0}
-          transitionLeaveTimeout={0}
+          classNames={transitionName}
+          timeout={{enter: 0, exit: 0}}
         >
           <div style={filesetStyle}>
             {items.filter(item => !item.cancelled && !!item.file).map(item => {
@@ -294,9 +293,8 @@ class XHRUploader extends Component {
     return (
       <TransitionGroup
         component="div"
-        transitionName={transitionName}
-        transitionEnterTimeout={0}
-        transitionLeaveTimeout={0}
+        classNames={transitionName}
+        timeout={{enter: 0, exit: 0}}
       />
     );
   }
