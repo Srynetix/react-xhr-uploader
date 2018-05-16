@@ -60,10 +60,10 @@
     "prop-types": "^15.6.0",
     "purecss": "^0.6.0",
     "react": "^16.0.0",
-    "react-addons-css-transition-group": "^15.6.2",
     "react-dom": "^16.0.0",
     "react-hot-loader": "^3.0.0-beta.3",
     "react-test-renderer": "^16.0.0",
+    "react-transition-group": "^2.2.0",
     "remark": "^3.2.2",
     "remark-react": "^1.1.0",
     "style-loader": "^0.13.0",
@@ -72,8 +72,7 @@
     "url-loader": "^0.5.7",
     "webpack": "^1.13.2",
     "webpack-dev-server": "^1.14.1",
-    "webpack-merge": "^0.14.1",
-    "react-transition-group": "^2.2.0"
+    "webpack-merge": "^0.14.1"
   },
   "repository": {
     "type": "git",
