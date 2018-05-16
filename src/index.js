@@ -250,7 +250,7 @@ class XHRUploader extends Component {
       return (
         <TransitionGroup
           component="div"
-          classNames={transitionName}
+          className={transitionName}
           timeout={{enter: 0, exit: 0}}
         >
           <div style={filesetStyle}>
@@ -293,7 +293,7 @@ class XHRUploader extends Component {
     return (
       <TransitionGroup
         component="div"
-        classNames={transitionName}
+        className={transitionName}
         timeout={{enter: 0, exit: 0}}
       />
     );
