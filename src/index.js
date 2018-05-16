@@ -313,11 +313,12 @@ class XHRUploader extends Component {
   }
 
   renderInput() {
-    const maxFiles = this.props.maxFiles;
+    const { maxFiles, allowedTypes } = this.props;
     return (
       <input
         style={{ display: 'none' }}
         multiple={maxFiles > 1}
+        accept={allowedTypes}
         type="file"
         ref={c => {
           if (c) {
@@ -357,7 +358,8 @@ XHRUploader.propTypes = {
   cancelIconClass: PropTypes.string,
   completeIconClass: PropTypes.string,
   uploadIconClass: PropTypes.string,
-  progressClass: PropTypes.string
+  progressClass: PropTypes.string,
+  allowedTypes: PropTypes.string
 };
 
 XHRUploader.defaultProps = {
@@ -376,7 +378,8 @@ XHRUploader.defaultProps = {
   filesetTransitionName: 'fileset',
   cancelIconClass: 'fa fa-close',
   completeIconClass: 'fa fa-check',
-  uploadIconClass: 'fa fa-upload'
+  uploadIconClass: 'fa fa-upload',
+  allowedTypes: null
 };
 
 export default XHRUploader;
