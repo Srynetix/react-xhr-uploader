@@ -103,10 +103,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.onDragEnter = _this.onDragEnter.bind(_this);
 	    _this.onDragLeave = _this.onDragLeave.bind(_this);
 	    _this.onDrop = _this.onDrop.bind(_this);
+	
+	    _this.timeoutHandle = null;
 	    return _this;
 	  }
 	
 	  _createClass(XHRUploader, [{
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      if (this.timeoutHandle != null) {
+	        clearTimeout(this.timeoutHandle);
+	      }
+	    }
+	  }, {
 	    key: 'onClick',
 	    value: function onClick() {
 	      this.fileInput.click();
@@ -183,7 +192,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          return item.progress === 100;
 	        }).length;
 	        if (completed === this.state.items.length) {
-	          setTimeout(function () {
+	          this.timeoutHandle = setTimeout(function () {
 	            _this4.setState({ items: [] });
 	          }, this.props.clearTimeOut);
 	        }

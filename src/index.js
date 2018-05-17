@@ -15,6 +15,14 @@ class XHRUploader extends Component {
     this.onDragEnter = this.onDragEnter.bind(this);
     this.onDragLeave = this.onDragLeave.bind(this);
     this.onDrop = this.onDrop.bind(this);
+
+    this.timeoutHandle = null;
+  }
+
+  componentWillUnmount () {
+    if (this.timeoutHandle != null) {
+      clearTimeout(this.timeoutHandle)
+    }
   }
 
   onClick() {
@@ -77,7 +85,7 @@ class XHRUploader extends Component {
     if (this.props.clearTimeOut > 0) {
       const completed = this.state.items.filter(item => item.progress === 100).length;
       if (completed === this.state.items.length) {
-        setTimeout(() => {
+        this.timeoutHandle = setTimeout(() => {
           this.setState({ items: [] });
         }, this.props.clearTimeOut);
       }
