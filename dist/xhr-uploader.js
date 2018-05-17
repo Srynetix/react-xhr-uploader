@@ -127,6 +127,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          _this2.upload();
 	        }
 	      });
+	
+	      this.fileInput.value = '';
 	    }
 	  }, {
 	    key: 'onDragEnter',
@@ -168,6 +170,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          _this3.upload();
 	        }
 	      });
+	
+	      this.fileInput.value = '';
 	    }
 	  }, {
 	    key: 'clearIfAllCompleted',
