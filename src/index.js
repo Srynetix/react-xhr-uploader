@@ -146,15 +146,26 @@ class XHRUploader extends Component {
 
       formData.append(this.props.fieldName, blob, `${fileName}-chunk${chunkIndex}`);
 
-      xhr.onload = () => {
+      xhr.onload = evt => {
         progressCallback(100, chunkIndex);
+        this.handleUploadStatus(`chunk${chunkIndex}`, xhr);
       };
+
       xhr.upload.onprogress = e => {
         if (e.lengthComputable) {
           progressCallback(e.loaded / e.total * 100, chunkIndex);
         }
       };
+
       xhr.open(this.props.method, this.props.url, true);
+
+      // Inject headers
+      if (this.props.headers) {
+        for (let key in this.props.headers) {
+          xhr.setRequestHeader(key, this.props.headers[key])
+        }
+      }
+
       xhr.send(formData);
     }
   }
@@ -163,11 +174,13 @@ class XHRUploader extends Component {
     if (file) {
       const formData = new FormData();
       const xhr = new XMLHttpRequest();
+      const index = file.index
 
       formData.append(this.props.fieldName, file, file.name);
 
-      xhr.onload = () => {
+      xhr.onload = evt => {
         progressCallback(100);
+        this.handleUploadStatus(index, xhr)
       };
 
       xhr.upload.onprogress = e => {
@@ -177,6 +190,14 @@ class XHRUploader extends Component {
       };
 
       xhr.open(this.props.method, this.props.url, true);
+
+      // Inject headers
+      if (this.props.headers) {
+        for (let key in this.props.headers) {
+          xhr.setRequestHeader(key, this.props.headers[key])
+        }
+      }
+
       xhr.send(formData);
       this.xhrs[file.index] = xhr;
     }
@@ -211,6 +232,25 @@ class XHRUploader extends Component {
         ++u;
     } while(Math.abs(bytes) >= thresh && u < units.length - 1);
     return bytes.toFixed(1) + " " + units[u];
+  }
+
+  handleUploadStatus(id, xhr) {
+    if (xhr.status === 200) {
+      let data = xhr.responseText
+      try { data = JSON.parse(xhr.responseText) } catch (e) {}
+
+      if (this.props.onUploadSuccess) {
+        this.props.onUploadSuccess(id, data, xhr)
+      }
+
+    } else {
+      let error = xhr.responseText
+      try { error = JSON.parse(xhr.responseText) } catch (e) {}
+
+      if (this.props.onUploadError) {
+        this.props.onUploadError(id, error, xhr)
+      }
+    }
   }
 
   renderDropTarget() {
@@ -304,7 +344,11 @@ class XHRUploader extends Component {
     const displayButton = !this.props.auto;
     if (displayButton) {
       return (
-        <button style={styles.uploadButtonStyle} onClick={this.onUploadButtonClick}>
+        <button
+          style={styles.uploadButtonStyle}
+          onClick={this.onUploadButtonClick}
+          disabled={this.state.items.length === 0}
+        >
           {this.props.buttonLabel}
         </button>
       );
@@ -359,7 +403,11 @@ XHRUploader.propTypes = {
   completeIconClass: PropTypes.string,
   uploadIconClass: PropTypes.string,
   progressClass: PropTypes.string,
-  allowedTypes: PropTypes.string
+  allowedTypes: PropTypes.string,
+  headers: PropTypes.shape({}),
+
+  onUploadSuccess: PropTypes.func,
+  onUploadError: PropTypes.func
 };
 
 XHRUploader.defaultProps = {
@@ -379,7 +427,11 @@ XHRUploader.defaultProps = {
   cancelIconClass: 'fa fa-close',
   completeIconClass: 'fa fa-check',
   uploadIconClass: 'fa fa-upload',
-  allowedTypes: null
+  allowedTypes: null,
+  headers: null,
+
+  onUploadSuccess: null,
+  onUploadError: null
 };
 
 export default XHRUploader;

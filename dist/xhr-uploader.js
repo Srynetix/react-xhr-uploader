@@ -262,35 +262,52 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'uploadChunk',
 	    value: function uploadChunk(blob, chunkIndex, fileName, progressCallback) {
+	      var _this7 = this;
+	
 	      if (blob) {
 	        var formData = new FormData();
 	        var xhr = new XMLHttpRequest();
 	
 	        formData.append(this.props.fieldName, blob, fileName + '-chunk' + chunkIndex);
 	
-	        xhr.onload = function () {
+	        xhr.onload = function (evt) {
 	          progressCallback(100, chunkIndex);
+	          _this7.handleUploadStatus('chunk' + chunkIndex, xhr);
 	        };
+	
 	        xhr.upload.onprogress = function (e) {
 	          if (e.lengthComputable) {
 	            progressCallback(e.loaded / e.total * 100, chunkIndex);
 	          }
 	        };
+	
 	        xhr.open(this.props.method, this.props.url, true);
+	
+	        // Inject headers
+	        if (this.props.headers) {
+	          for (var key in this.props.headers) {
+	            xhr.setRequestHeader(key, this.props.headers[key]);
+	          }
+	        }
+	
 	        xhr.send(formData);
 	      }
 	    }
 	  }, {
 	    key: 'uploadFile',
 	    value: function uploadFile(file, progressCallback) {
+	      var _this8 = this;
+	
 	      if (file) {
 	        var formData = new FormData();
 	        var xhr = new XMLHttpRequest();
+	        var index = file.index;
 	
 	        formData.append(this.props.fieldName, file, file.name);
 	
-	        xhr.onload = function () {
+	        xhr.onload = function (evt) {
 	          progressCallback(100);
+	          _this8.handleUploadStatus(index, xhr);
 	        };
 	
 	        xhr.upload.onprogress = function (e) {
@@ -300,6 +317,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	
 	        xhr.open(this.props.method, this.props.url, true);
+	
+	        // Inject headers
+	        if (this.props.headers) {
+	          for (var key in this.props.headers) {
+	            xhr.setRequestHeader(key, this.props.headers[key]);
+	          }
+	        }
+	
 	        xhr.send(formData);
 	        this.xhrs[file.index] = xhr;
 	      }
@@ -307,13 +332,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'filesToItems',
 	    value: function filesToItems(files) {
-	      var _this7 = this;
+	      var _this9 = this;
 	
 	      var fileItems = Array.prototype.slice.call(files).slice(0, this.props.maxFiles);
 	      var items = fileItems.map(function (f, i) {
-	        if (_this7.props.chunks) {
+	        if (_this9.props.chunks) {
 	          var chunkProgress = [];
-	          for (var j = 0; j <= f.size / _this7.props.chunkSize; j += 1) {
+	          for (var j = 0; j <= f.size / _this9.props.chunkSize; j += 1) {
 	            chunkProgress.push(0);
 	          }
 	          return { file: f, index: i, progress: 0, cancelled: false, chunkProgress: chunkProgress };
@@ -336,6 +361,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	        ++u;
 	      } while (Math.abs(bytes) >= thresh && u < units.length - 1);
 	      return bytes.toFixed(1) + " " + units[u];
+	    }
+	  }, {
+	    key: 'handleUploadStatus',
+	    value: function handleUploadStatus(id, xhr) {
+	      if (xhr.status === 200) {
+	        var data = xhr.responseText;
+	        try {
+	          data = JSON.parse(xhr.responseText);
+	        } catch (e) {}
+	
+	        if (this.props.onUploadSuccess) {
+	          this.props.onUploadSuccess(id, data, xhr);
+	        }
+	      } else {
+	        var error = xhr.responseText;
+	        try {
+	          error = JSON.parse(xhr.responseText);
+	        } catch (e) {}
+	
+	        if (this.props.onUploadError) {
+	          this.props.onUploadError(id, error, xhr);
+	        }
+	      }
 	    }
 	  }, {
 	    key: 'renderDropTarget',
@@ -374,7 +422,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'renderFileSet',
 	    value: function renderFileSet() {
-	      var _this8 = this;
+	      var _this10 = this;
 	
 	      var items = this.state.items;
 	      var _props = this.props,
@@ -394,12 +442,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	        var filesetStyle = items.length === cancelledItems.length ? { display: 'none' } : styles.fileset;
 	        return _react2.default.createElement(
-	          _reactTransitionGroup.TransitionGroup,
+	          _reactTransitionGroup.CSSTransition,
 	          {
-	            component: 'div',
-	            transitionName: transitionName,
-	            transitionEnterTimeout: 0,
-	            transitionLeaveTimeout: 0
+	            classNames: transitionName,
+	            timeout: { enter: 0, exit: 0 }
 	          },
 	          _react2.default.createElement(
 	            'div',
@@ -428,14 +474,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                  _react2.default.createElement(
 	                    'span',
 	                    { style: styles.fileSize },
-	                    '' + _this8.humanFileSize(file.size)
+	                    '' + _this10.humanFileSize(file.size)
 	                  ),
 	                  _react2.default.createElement('i', {
 	                    className: iconClass,
 	                    style: { cursor: 'pointer' },
 	                    onClick: function onClick(e) {
 	                      e.stopPropagation();
-	                      _this8.cancelFile(item.index);
+	                      _this10.cancelFile(item.index);
 	                    }
 	                  })
 	                ),
@@ -460,12 +506,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	          )
 	        );
 	      }
-	      return _react2.default.createElement(_reactTransitionGroup.TransitionGroup, {
-	        component: 'div',
-	        transitionName: transitionName,
-	        transitionEnterTimeout: 0,
-	        transitionLeaveTimeout: 0
-	      });
+	      return _react2.default.createElement(
+	        _reactTransitionGroup.CSSTransition,
+	        {
+	          classNames: transitionName,
+	          timeout: { enter: 0, exit: 0 }
+	        },
+	        _react2.default.createElement('span', null)
+	      );
 	    }
 	  }, {
 	    key: 'renderButton',
@@ -476,7 +524,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (displayButton) {
 	        return _react2.default.createElement(
 	          'button',
-	          { style: styles.uploadButtonStyle, onClick: this.onUploadButtonClick },
+	          {
+	            style: styles.uploadButtonStyle,
+	            onClick: this.onUploadButtonClick,
+	            disabled: this.state.items.length === 0
+	          },
 	          this.props.buttonLabel
 	        );
 	      }
@@ -485,16 +537,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'renderInput',
 	    value: function renderInput() {
-	      var _this9 = this;
+	      var _this11 = this;
 	
-	      var maxFiles = this.props.maxFiles;
+	      var _props3 = this.props,
+	          maxFiles = _props3.maxFiles,
+	          allowedTypes = _props3.allowedTypes;
+	
 	      return _react2.default.createElement('input', {
 	        style: { display: 'none' },
 	        multiple: maxFiles > 1,
+	        accept: allowedTypes,
 	        type: 'file',
 	        ref: function ref(c) {
 	          if (c) {
-	            _this9.fileInput = c;
+	            _this11.fileInput = c;
 	          }
 	        },
 	        onChange: this.onFileSelect
@@ -534,7 +590,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  cancelIconClass: _propTypes2.default.string,
 	  completeIconClass: _propTypes2.default.string,
 	  uploadIconClass: _propTypes2.default.string,
-	  progressClass: _propTypes2.default.string
+	  progressClass: _propTypes2.default.string,
+	  allowedTypes: _propTypes2.default.string,
+	  headers: _propTypes2.default.shape({}),
+	
+	  onUploadSuccess: _propTypes2.default.func,
+	  onUploadError: _propTypes2.default.func
 	};
 	
 	XHRUploader.defaultProps = {
@@ -553,7 +614,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  filesetTransitionName: 'fileset',
 	  cancelIconClass: 'fa fa-close',
 	  completeIconClass: 'fa fa-check',
-	  uploadIconClass: 'fa fa-upload'
+	  uploadIconClass: 'fa fa-upload',
+	  allowedTypes: null,
+	  headers: null,
+	
+	  onUploadSuccess: null,
+	  onUploadError: null
 	};
 	
 	exports.default = XHRUploader;
