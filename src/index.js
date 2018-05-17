@@ -32,6 +32,8 @@ class XHRUploader extends Component {
         this.upload();
       }
     });
+
+    this.fileInput.value = '';
   }
 
   onDragEnter() {
@@ -67,6 +69,8 @@ class XHRUploader extends Component {
         this.upload();
       }
     });
+
+    this.fileInput.value = '';
   }
 
   clearIfAllCompleted() {
