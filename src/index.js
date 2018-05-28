@@ -21,7 +21,8 @@ class XHRUploader extends Component {
 
   componentWillUnmount () {
     if (this.timeoutHandle != null) {
-      clearTimeout(this.timeoutHandle)
+      clearTimeout(this.timeoutHandle);
+      this.timeoutHandle = null;
     }
   }
 

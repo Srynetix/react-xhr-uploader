@@ -113,6 +113,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function componentWillUnmount() {
 	      if (this.timeoutHandle != null) {
 	        clearTimeout(this.timeoutHandle);
+	        this.timeoutHandle = null;
 	      }
 	    }
 	  }, {
